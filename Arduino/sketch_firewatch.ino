@@ -54,5 +54,45 @@ void loop() {
  double latitude = 18.27;
 double longitude = 73.52;
 
- 
+ // 🔥 Fire Detection Logic
+  String status = "IDLE";
+
+  if (mq4Value > MQ4_THRESHOLD ||
+      mq7Value > MQ7_THRESHOLD ||
+      mq135Value > MQ135_THRESHOLD) {
+
+    status = "ACTIVE";
+  }
+
+  Serial.println("MQ4: " + String(mq4Value));
+  Serial.println("MQ7: " + String(mq7Value));
+  Serial.println("MQ135: " + String(mq135Value));
+  Serial.println("Lat: " + String(latitude, 6));
+  Serial.println("Lng: " + String(longitude, 6));
+  Serial.println("Status: " + status);
+
+  // Send to server
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(serverName);
+    http.addHeader("Content-Type", "application/json");
+
+    String jsonData = "{";
+    jsonData += "\"mq4\":" + String(mq4Value) + ",";
+    jsonData += "\"mq7\":" + String(mq7Value) + ",";
+    jsonData += "\"mq135\":" + String(mq135Value) + ",";
+    jsonData += "\"latitude\":" + String(latitude, 6) + ",";
+    jsonData += "\"longitude\":" + String(longitude, 6) + ",";
+    jsonData += "\"status\":\"" + status + "\"";
+    jsonData += "}";
+
+    int httpResponseCode = http.POST(jsonData);
+
+    Serial.print("HTTP Response: ");
+    Serial.println(httpResponseCode);
+
+    http.end();
+  }
+
+  delay(5000);
 }
