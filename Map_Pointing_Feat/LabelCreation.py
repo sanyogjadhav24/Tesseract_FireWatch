@@ -16,11 +16,33 @@ cap.set(4, height)
 
 # Load map points from file
 with open(map_file_path, 'rb') as file_obj:
-    map_points = pickle.load(file_obj)
+    map_data = pickle.load(file_obj)
+
+if isinstance(map_data, dict):
+    map_points = np.array(map_data.get("points"), dtype=np.float32)
+    map_warp_size = tuple(map_data.get("warp_size", (1920, 1080)))
+else:
+    map_points = np.array(map_data, dtype=np.float32)
+    map_warp_size = (1920, 1080)
+
 print(f"Loaded map coordinates: {map_points}")
+print(f"Using warp size: {map_warp_size}")
 
 counter = 0
 current_polygon = []
+
+
+def order_points(pts):
+    pts = np.array(pts, dtype=np.float32)
+    s = pts.sum(axis=1)
+    diff = np.diff(pts, axis=1)
+
+    ordered = np.zeros((4, 2), dtype=np.float32)
+    ordered[0] = pts[np.argmin(s)]      # top-left
+    ordered[1] = pts[np.argmin(diff)]   # top-right
+    ordered[2] = pts[np.argmax(diff)]   # bottom-left
+    ordered[3] = pts[np.argmax(s)]      # bottom-right
+    return ordered
 
 # Load countries file if it exists, otherwise initialize an empty list
 if os.path.exists(countries_file_path):
@@ -37,8 +59,8 @@ def mousePoints(event, x, y, flags, params):
         current_polygon.append((x, y))
         print(f"Point added: {x, y}")
 
-def warp_image(img, points, size=[1920, 1080]):
-    pts1 = np.float32(points)
+def warp_image(img, points, size):
+    pts1 = order_points(points)
     pts2 = np.float32([[0, 0], [size[0], 0], [0, size[1]], [size[0], size[1]]])
     matrix = cv2.getPerspectiveTransform(pts1, pts2)
     imgOutput = cv2.warpPerspective(img, matrix, (size[0], size[1]))
@@ -48,8 +70,7 @@ while True:
     success, img = cap.read()
     if not success:
         break
-    img = cv2.flip(img, 1)
-    imgWarped, matrix = warp_image(img, map_points)
+    imgWarped, matrix = warp_image(img, map_points, map_warp_size)
 
     # Draw current polygon
     if current_polygon:
