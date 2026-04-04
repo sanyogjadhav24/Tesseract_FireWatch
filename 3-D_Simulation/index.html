@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireWatch 3D Disaster Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .ui-panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #ff6b35;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 14px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+        }
+        
+        .control-panel {
+            top: 20px;
+            right: 20px;
+            width: 360px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .info-panel {
+            top: 20px;
+            left: 20px;
+            width: 420px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6b35;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ff6b35;
+            padding-bottom: 10px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.3);
+        }
+        
+        .stat-label {
+            color: #aaa;
+        }
+        
+        .stat-value {
+            color: #ff6b35;
+            font-weight: bold;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .slider-container {
+            margin: 15px 0;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            color: #aaa;
+            font-size: 12px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgb(200, 70, 35);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b35;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(255, 107, 53, 0.8);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b35;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 5px rgba(255, 107, 53, 0.8);
+        }
+        
+        .legend {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 107, 53, 0.3);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+        
+        .alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 107, 53, 0.95);
+            padding: 40px 60px;
+            border-radius: 10px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .hud {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff6b35;
+            border-radius: 8px;
+            padding: 15px 30px;
+            text-align: center;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 8px currentColor;
+        }
+        
+        .status-indicator.active {
+            background: #ff0000;
+            box-shadow: 0 0 15px #ff0000;
+            animation: pulse-red 0.8s infinite;
+        }
+        
+        .status-indicator.safe {
+            background: #00ff00;
+            box-shadow: 0 0 12px #00ff00;
+        }
+        
+        @keyframes blink {
+            0%, 49%, 100% { opacity: 1; }
+            50%, 99% { opacity: 0.5; }
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .speed-indicator {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff6b35;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="ui-panel info-panel">
+        <div class="title">🔥 FireWatch 3D Simulation</div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Forest Trees:</span>
+            <span class="stat-value" id="treeCount">0</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Active Sensors:</span>
+            <span class="stat-value" id="sensorCount">0</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">City Population:</span>
+            <span class="stat-value" id="populationCount">0</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Fire Intensity:</span>
+            <span class="stat-value" id="fireIntensity">0%</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Evacuated:</span>
+            <span class="stat-value" id="evacuatedCount">0</span>
+        </div>
+        
+        <div class="stat-item">
+            <span class="stat-label">Simulation Time:</span>
+            <span class="stat-value" id="simTime">00:00</span>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #228B22;"></div>
+                <span>Healthy Forest</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FFA500;"></div>
+                <span>Fire Zone</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FF0000;"></div>
+                <span>Active Fire</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #0080FF;"></div>
+                <span>Sensor</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FFFF00;"></div>
+                <span>Safe Zone</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="ui-panel control-panel">
+        <div class="title">⚙️ Controls</div>
+        
+        <button id="startBtn">▶ Start Simulation</button>
+        <button id="pauseBtn" disabled>⏸ Pause</button>
+        <button id="resetBtn">↻ Reset</button>
+        
+        <div style="margin: 15px 0; border-top: 1px solid rgba(255, 107, 53, 0.3); padding-top: 15px;">
+            <button id="fireBtn">🔥 Trigger Fire</button>
+        </div>
+        
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Simulation Speed</span>
+                <span id="speedValue">1x</span>
+            </div>
+            <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+        </div>
+        
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Fire Spread Rate</span>
+                <span id="spreadValue">1x</span>
+            </div>
+            <input type="range" id="spreadSlider" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        
+        <div class="slider-container">
+            <div class="slider-label">
+                <span>Wind Speed</span>
+                <span id="windValue">1x</span>
+            </div>
+            <input type="range" id="windSlider" min="0" max="2" step="0.1" value="1">
+        </div>
+        
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 107, 53, 0.3); font-size: 12px; color: #aaa;">
+            <p><strong>📊 Keyboard Controls:</strong></p>
+            <p>🖱️ Drag: Rotate view</p>
+            <p>🔍 Scroll: Zoom in/out</p>
+            <p>WASD: Pan camera</p>
+        </div>
+    </div>
+    
+    <div class="alert" id="alert"></div>
+    
+    <div class="hud" id="hud">
+        <span class="status-indicator safe"></span>
+        <span id="hudText">System Ready</span>
+    </div>
+    
+    <div class="speed-indicator">
+        <div style="font-size: 12px; color: #aaa; margin-bottom: 5px;">FPS</div>
+        <div id="fps" style="font-size: 16px; color: #ff6b35; font-weight: bold;">60</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="utils.js"></script>
+    <script src="simulation.js"></script>
+</body>
+</html>

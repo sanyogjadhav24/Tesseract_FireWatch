@@ -30,10 +30,14 @@ export async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 10000, // 10 seconds
-      socketTimeoutMS: 45000, // 45 seconds
+      serverSelectionTimeoutMS: 30000, // 30 seconds
+      socketTimeoutMS: 60000, // 60 seconds
       maxPoolSize: 10,
       minPoolSize: 2,
+      retryWrites: true,
+      w: 'majority' as const,
+      monitorCommands: true,
+      serverMonitoringMode: 'auto' as const,
     };
 
     console.log('Creating new MongoDB connection...');
