@@ -86,6 +86,10 @@ function RefreshIcon({ className }: { className?: string }) {
 }
 
 export default function PredictPage() {
+	useEffect(() => {
+		window.location.href = 'https://disaster-managment-murex.vercel.app/'
+	}, [])
+
 	const [result, setResult] = useState<PredictResponse | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)

@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { href: "/",label: "Dashboard"  },
-  { href: "/map" , label: "Disaster Map"},
-  { href: "/stats" , label: "Statistics"},
-    { href: "/predict",label: "Predict" },
+  { href: "/", label: "Dashboard" },
+  { href: "/map", label: "Disaster Map" },
+  { href: "/stats", label: "Statistics" },
+  { href: "https://disaster-managment-murex.vercel.app/", label: "Predict", external: true },
 ];
 
 
@@ -42,7 +42,7 @@ export default function Navigation() {
 
 					<div className="flex items-center gap-1">
 						{navItems.map((item) => {
-							const isActive = pathname === item.href
+							const isActive = !item.external && pathname === item.href
 							return (
 								<Link
 									key={item.href}
