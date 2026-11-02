@@ -47,9 +47,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['@arcgis/core', 'leaflet', 'd3'],
   },
-  
-  // Fix workspace root warning
-  outputFileTracingRoot: 'e:\\Tesseract Firewatch\\Tesseract_FireWatch\\firewatch',
 };
 
 export default nextConfig;
