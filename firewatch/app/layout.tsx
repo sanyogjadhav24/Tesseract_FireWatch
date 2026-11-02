@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import '@arcgis/core/assets/esri/themes/light/main.css'
 import Navigation from './components/Navigation'
 
 const geistSans = Geist({

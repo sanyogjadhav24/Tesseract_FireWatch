@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import '@arcgis/core/assets/esri/themes/light/main.css'
 import {
 	createGeoJsonUrl,
 	createIncidentsGlowLayer,
