@@ -9,7 +9,7 @@ import type {
 	Geometry,
 	GeoJsonProperties,
 } from 'geojson'
-import { FireData } from '../types'
+import type { FireData } from '@/lib/types/fire.types'
 // import { dummyFireData, type FireData } from '../data/fire-data'
 
 const getBrightnessColor = (
@@ -353,7 +353,7 @@ export default function DottedMap({
 						const conf =
 							typeof p.fire.confidence === 'number'
 								? p.fire.confidence
-								: Number.parseInt(p.fire.confidence)
+								: Number.parseInt(p.fire.confidence ?? '0')
 						// Only pulse fires with confidence >= 95 to reduce animations
 						return (
 							<FirePixel

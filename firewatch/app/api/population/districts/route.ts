@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
     console.log(`Found ${districts.length} population districts`);
     
     // Calculate statistics
-    const totalPopulation = districts.reduce((sum, district) => sum + district.properties.population, 0);
+    const totalPopulation = districts.reduce((sum: number, district: any) => sum + Number(district?.properties?.population || 0), 0);
     const avgPopulation = districts.length > 0 ? Math.round(totalPopulation / districts.length) : 0;
     
     // Log sample data

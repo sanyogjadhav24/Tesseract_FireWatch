@@ -20,12 +20,12 @@ export async function POST() {
         totalRecords: globalData.length,
         sampleData: globalData.slice(0, 5), // First 5 records
         regions: {
-          northAmerica: globalData.filter(f => f.latitude > 25 && f.latitude < 70 && f.longitude > -170 && f.longitude < -60).length,
-          europe: globalData.filter(f => f.latitude > 35 && f.latitude < 72 && f.longitude > -10 && f.longitude < 40).length,
-          asia: globalData.filter(f => f.latitude > -10 && f.latitude < 77 && f.longitude > 26 && f.longitude < 180).length,
-          australia: globalData.filter(f => f.latitude > -45 && f.latitude < -10 && f.longitude > 110 && f.longitude < 155).length,
-          africa: globalData.filter(f => f.latitude > -35 && f.latitude < 40 && f.longitude > -20 && f.longitude < 55).length,
-          southAmerica: globalData.filter(f => f.latitude > -60 && f.latitude < 15 && f.longitude > -85 && f.longitude < -35).length
+          northAmerica: globalData.filter((f: any) => f.latitude > 25 && f.latitude < 70 && f.longitude > -170 && f.longitude < -60).length,
+          europe: globalData.filter((f: any) => f.latitude > 35 && f.latitude < 72 && f.longitude > -10 && f.longitude < 40).length,
+          asia: globalData.filter((f: any) => f.latitude > -10 && f.latitude < 77 && f.longitude > 26 && f.longitude < 180).length,
+          australia: globalData.filter((f: any) => f.latitude > -45 && f.latitude < -10 && f.longitude > 110 && f.longitude < 155).length,
+          africa: globalData.filter((f: any) => f.latitude > -35 && f.latitude < 40 && f.longitude > -20 && f.longitude < 55).length,
+          southAmerica: globalData.filter((f: any) => f.latitude > -60 && f.latitude < 15 && f.longitude > -85 && f.longitude < -35).length
         }
       },
       timestamp: new Date().toISOString()

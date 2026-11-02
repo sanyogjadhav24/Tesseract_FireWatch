@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       totalDistricts: totalCount,
       statistics: stats[0] || {},
       topStatesByDistricts: stateStats,
-      sampleDistricts: sampleDistricts.map(d => ({
+      sampleDistricts: sampleDistricts.map((d: any) => ({
         name: d.properties.district_name,
         state: d.properties.state_name,
         population: d.properties.population
